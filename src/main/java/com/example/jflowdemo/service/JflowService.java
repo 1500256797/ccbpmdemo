@@ -121,7 +121,6 @@ public interface JflowService {
      * @param paras 用于控制流程运转的参数，比如方向条件. 格式为:@JinE=1000@QingJaiTianShu=100
      * @throws Exception
      */
-
     @RequestMapping(value = "/jflow-web/restful/SaveParas")
     public void SaveParas(@RequestParam("workid") long workid, @RequestParam("paras") String paras,@RequestParam("userNo") String userNo) throws Exception;
 

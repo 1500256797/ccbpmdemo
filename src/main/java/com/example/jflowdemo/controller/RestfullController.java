@@ -3,11 +3,15 @@ package com.example.jflowdemo.controller;
 import com.example.jflowdemo.service.JflowService;
 import com.example.jflowdemo.service.WF_Comm_Controller_Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * ClassName: RestfullController
@@ -148,4 +152,58 @@ public class RestfullController {
 //        jflowService.
 //        return " ";
 //    }
+
+    /**
+     * 创建WorkID
+     * @param flowNo 流程编号
+     * @param userNo 工作人员编号
+     * @return 一个长整型的工作流程实例
+     * @throws Exception
+     */
+
+    @RequestMapping(value = "/CreateWorkID")
+    public long CreateWorkID(@RequestParam("flowNo") String flowNo, @RequestParam("userNo") String userNo){
+        long workid =-1;
+        try {
+             workid = jflowService.CreateWorkID(flowNo, userNo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return workid==-1 ? -1 : workid;
+    }
+
+
+    /**
+     * 执行发送
+     *  flowNo 流的程模版ID
+     *  workid 工作ID
+     *  ht 参数，或者表单字段.
+     *  toNodeID 到达的节点ID.如果让系统自动计算就传入0
+     *  toEmps 到达的人员IDs,比如:zhangsan,lisi,wangwu. 如果为Null就标识让系统自动计算
+     * @return 发送的结果信息.
+     * @throws Exception
+     */
+    @RequestMapping("/sendwork")
+    public String SendWordk( @RequestBody HashMap ht){
+        String flowNo = (String) ht.get("flowNo");
+        long workid = Long.parseLong(String.valueOf(ht.get("workid")));
+        int toNodeID = Integer.parseInt(String.valueOf(ht.get("toNodeID")));
+        String toEmps = (String) ht.get("toEmps");
+        String userNo = (String) ht.get("userNO");
+        Hashtable<String, String> hashtable_temp = new Hashtable<>();
+
+        if(ht.get("ht") instanceof HashMap){
+            System.out.println("我是一个hashmap");
+//            System.out.println(((HashMap) ht.get("ht")).values());
+            HashMap tempMap = (HashMap) ht.get("ht");
+//            System.out.println(tempMap.get("ShiJianShuoMing"));
+            hashtable_temp.put("ShiJianShuoMing", (String) tempMap.get("ShiJianShuoMing"));
+            hashtable_temp.put("FaShengShiJian",tempMap.get("FaShengShiJian").toString());
+        }else {
+            System.out.println("我不是hashmap");
+            System.out.println(ht.get("ht").toString());
+        }
+        String tempResult = jflowService.SendWork(flowNo, workid, hashtable_temp, toNodeID, toEmps, userNo);
+        return tempResult;
+    }
 }
